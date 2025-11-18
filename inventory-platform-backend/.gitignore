@@ -1,0 +1,11 @@
+# Arquivos de dependências e de build
+node_modules/
+dist/
+build/
+
+# Variáveis de ambiente (crucial para segurança)
+.env
+
+# Logs e caches
+npm-debug.log*
+.vscode-test/

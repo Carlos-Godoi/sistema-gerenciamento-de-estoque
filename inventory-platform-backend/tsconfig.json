@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",             /* Versão do JavaScript de destino (moderno). */
+    "module": "commonjs",           /* Sistema de módulos para Node.js. */
+    "rootDir": "./src",             /* Onde estão seus arquivos TypeScript. */
+    "outDir": "./dist",             /* Onde o JavaScript compilado será colocado. */
+    "esModuleInterop": true,        /* Permite importação como em Babel (import X from 'Y'). */
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,                 /* Ativa todas as verificações rigorosas de tipo (MUITO importante). */
+    "skipLibCheck": true            /* Otimização de compilação. */
+  },
+  "include": ["src/**/*"],          /* Incluir todos os arquivos dentro de src. */
+  "exclude": ["node_modules"]
+}
