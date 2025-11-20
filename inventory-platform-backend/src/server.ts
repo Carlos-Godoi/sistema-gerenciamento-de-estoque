@@ -1,7 +1,9 @@
-import { Console } from 'console';
+// import { Console } from 'console';
 import 'dotenv/config';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
+import authRoutes from './routes/auth.routes'; // Importa rotas de autenticação
+// import productRoutes from './routes/product.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -9,6 +11,10 @@ const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/inventoryd
 
 // Middleware básico para processar JSON
 app.use(express.json());
+
+// Rotas da API
+app.use('/api/auth', authRoutes);
+// app.use('/api/products', productRoutes);
 
 // Rota de teste
 app.get('/', (req, res) => {
