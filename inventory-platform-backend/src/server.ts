@@ -4,6 +4,7 @@ import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import authRoutes from './routes/auth.routes'; // Importa rotas de autenticação
 import productRoutes from './routes/product.routes';
+import saleRoutes from './routes/sale.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -15,6 +16,7 @@ app.use(express.json());
 // Rotas da API
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/sales', saleRoutes);
 
 // Rota de teste
 app.get('/', (req, res) => {
