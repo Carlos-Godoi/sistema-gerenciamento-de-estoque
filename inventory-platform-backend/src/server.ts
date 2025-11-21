@@ -3,7 +3,7 @@ import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import authRoutes from './routes/auth.routes'; // Importa rotas de autenticação
-// import productRoutes from './routes/product.routes';
+import productRoutes from './routes/product.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,7 +14,7 @@ app.use(express.json());
 
 // Rotas da API
 app.use('/api/auth', authRoutes);
-// app.use('/api/products', productRoutes);
+app.use('/api/products', productRoutes);
 
 // Rota de teste
 app.get('/', (req, res) => {

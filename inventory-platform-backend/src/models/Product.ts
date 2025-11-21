@@ -36,3 +36,4 @@ const ProductSchema = new Schema<IProduct>({
     isActive: { type: Boolean, default: true },
 }, { timestamps: true });
 
+export default model<IProduct>('Product', ProductSchema);
