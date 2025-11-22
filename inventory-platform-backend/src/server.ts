@@ -5,6 +5,8 @@ import mongoose from 'mongoose';
 import authRoutes from './routes/auth.routes'; // Importa rotas de autenticação
 import productRoutes from './routes/product.routes';
 import saleRoutes from './routes/sale.routes';
+import reportRoutes from './routes/report.routes';
+import supplierRoutes from './routes/supplier.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +19,8 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/sales', saleRoutes);
+app.use('/api/report', reportRoutes);
+app.use('/api/suppliers', supplierRoutes);
 
 // Rota de teste
 app.get('/', (req, res) => {
