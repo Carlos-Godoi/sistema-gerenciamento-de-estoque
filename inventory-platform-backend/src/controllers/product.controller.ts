@@ -1,80 +1,76 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import Product, { IProduct } from '../models/Product';
 import { UserRole } from '../models/User';
-import { AuthRequest } from './auth.controller';
+import { AuthRequest } from './auth.controller'; // Tipo de Request com `user`
 
 /**
- * @route POST /api/product
- * @desc Cria um novo produto. Requer role Admin ou Inventory
+ * @route POST /api/products
+ * @desc Cria um novo produto. Requer role Admin ou Inventory.
  */
-
 export const createProduct = async (req: AuthRequest, res: Response) => {
+  // O req.user é injetado pelo middleware 'protect'
+  if (!req.user) {
+    return res.status(401).json({ message: 'Usuário não autenticado.' });
+  }
 
-    // O req.user é injetado pelo middleware 'protect'
-    if (!req.user) {
-        return res.status(401).json({ messagem: 'Usuário não autenticado. ' });
+  try {
+    const { name, sku, description, price, stockQuantity, minStockLevel, supplier } = req.body;
+
+    // Lógica Avançada: Validação
+    if (!name || !sku || !price || !supplier) {
+      return res.status(400).json({ message: 'Campos obrigatórios ausentes.' });
     }
 
-    try {
-        const { name, sku, description, price, stockQuantity, minStockLevel, supplier } = req.body;
+    const newProduct: Partial<IProduct> = {
+      name,
+      sku,
+      description,
+      price,
+      stockQuantity: stockQuantity || 0,
+      minStockLevel: minStockLevel || 10,
+      supplier,
+      createdBy: req.user._id, // Define o usuário logado como criador
+    };
 
-        // Validação do campos
-        if (!name || !sku || !price || !supplier) {
-            return res.status(400).json({ message: 'Campos obrigatórios ausentes.' });
-        }
+    const product = await Product.create(newProduct);
+    
+    // Retorna o produto recém-criado e popula o nome do fornecedor/criador (opcional)
+    await product.populate([
+      { path: 'supplier', select: 'name' },
+      { path: 'createdBy', select: 'username' }
+    ]);
 
-        const newProduct: Partial<IProduct> = {
-            name,
-            sku,
-            description,
-            price,
-            stockQuantity: stockQuantity || 0,
-            minStockLevel: minStockLevel || 10,
-            supplier,
-            createdBy: req.user._id, // Define o usuário logado com criador
-        };
-
-        const product = await Product.create(newProduct);
-
-        // Retorna o produto recém-criado e popula o nome do fornecedor/criador (opcional)
-        await product.populate([
-            { path: 'supplier', select: 'name' },
-            { path: 'createBy', select: 'username' },
-        ]);
-
-        res.status(201).json({
-            message: 'Produto criado com sucesso.',
-            product
-        });
-    } catch (error: any) {
-        // Trata erro de índice duplicado (ex: SKU já existe)
-        if (error.code === 11000) {
-            return res.status(400).json({ message: 'SKU já registrado. Por favor, use um código único.' });
-        }
-        console.error('Erro ao criar produto:', error);
-        res.status(500).json({ message: 'Erro interno do servidor.' });
+    res.status(201).json({ 
+      message: 'Produto criado com sucesso.', 
+      product 
+    });
+  } catch (error: any) {
+    // Trata erro de índice duplicado (ex: SKU já existe)
+    if (error.code === 11000) {
+        return res.status(400).json({ message: 'SKU já registrado. Por favor, use um código único.' });
     }
+    console.error('Erro ao criar produto:', error);
+    res.status(500).json({ message: 'Erro interno do servidor.' });
+  }
 };
 
 /**
  * @route GET /api/products
  * @desc Retorna a lista de produtos com Paginação e Filtragem. Requer Autenticação.
  */
-
-export const getProducts = async (req: Request, res: Response) => {
+export const getProducts = async (req: AuthRequest, res: Response) => {
     try {
-
-        // Paginação 
+        // 1. Paginação (padrões sensatos)
         const page = parseInt(req.query.page as string) || 1;
         const limit = parseInt(req.query.limit as string) || 10;
         const skip = (page - 1) * limit;
 
-        // Filtragem e busca
+        // 2. Filtragem e Busca
         const filter: any = {};
         const keyword = req.query.keyword as string;
+        const supplierId = req.query.supplier as string;
 
         if (keyword) {
-
             // Busca case-insensitive por nome ou SKU (usando $or e regex)
             filter.$or = [
                 { name: { $regex: keyword, $options: 'i' } },
@@ -86,23 +82,22 @@ export const getProducts = async (req: Request, res: Response) => {
             filter.supplier = supplierId; // Filtra por ID de fornecedor
         }
 
-        // Consulta ao DB
+        // 3. Consulta ao DB
         const products = await Product.find(filter)
             .limit(limit)
             .skip(skip)
             .sort({ name: 1 }) // Ordena por nome
-
-            // População (Adiciona dados relacionados do Supplier e User)
+            // 4. População (Adiciona dados relacionados do Supplier e User)
             .populate([
                 { path: 'supplier', select: 'name' },
-                { path: 'createdBy', select: 'username' },
+                { path: 'createdBy', select: 'username' }
             ]);
 
-        // Cálculo do total para a Paginação
+        // 5. Cálculo do total para a Paginação
         const totalProducts = await Product.countDocuments(filter);
         const totalPages = Math.ceil(totalProducts / limit);
 
-        res.json([
+        res.json({
             products,
             pagination: {
                 totalProducts,
@@ -110,7 +105,7 @@ export const getProducts = async (req: Request, res: Response) => {
                 totalPages,
                 hasNextPage: page < totalPages,
             },
-        ]);
+        });
     } catch (error) {
         console.error('Erro ao buscar produtos:', error);
         res.status(500).json({ message: 'Erro interno do servidor.' });
@@ -118,34 +113,33 @@ export const getProducts = async (req: Request, res: Response) => {
 };
 
 /**
- * @route PUT /api/product/:id
+ * @route PUT /api/products/:id
  * @desc Atualiza um produto. Requer role Admin ou Inventory.
  */
-
 export const updateProduct = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
         const updates = req.body;
 
-        const product = await Product.findByIdAndUpdate(id, updates, {
-            new: true,
+        const product = await Product.findByIdAndUpdate(id, updates, { 
+            new: true, 
             runValidators: true // Garante que o Mongoose execute as validações do schema
         })
-            .populate([
-                { path: 'pupplier', select: 'name' },
-                { path: 'createBy', select: 'username' }
-            ]);
+        .populate([
+            { path: 'supplier', select: 'name' },
+            { path: 'createdBy', select: 'username' }
+        ]);
 
         if (!product) {
             return res.status(404).json({ message: 'Produto não encontrado.' });
         }
 
-        res.json({
-            message: 'Produto atualizado com sucesso.', product
+        res.json({ 
+            message: 'Produto atualizado com sucesso.', 
+            product 
         });
     } catch (error: any) {
-
-        // Trata erro de validação (ex.: preço negativo)
+        // Trata erro de validação (ex: preço negativo)
         if (error.name === 'ValidationError') {
             return res.status(400).json({ message: error.message });
         }
@@ -158,7 +152,6 @@ export const updateProduct = async (req: AuthRequest, res: Response) => {
  * @route DELETE /api/products/:id
  * @desc Deleta um produto. Requer role Admin.
  */
-
 export const deleteProduct = async (req: AuthRequest, res: Response) => {
     try {
         const { id } = req.params;
@@ -173,12 +166,12 @@ export const deleteProduct = async (req: AuthRequest, res: Response) => {
         // você poderia optar por marcá-lo como `isActive: false` em vez de deletar
         // permanentemente. Neste exemplo, faremos a exclusão para simplificar.
 
-        res.json({
-            message: 'Produto deletado com sucesso.', product
+        res.json({ 
+            message: 'Produto deletado com sucesso.', 
+            product 
         });
     } catch (error) {
         console.error('Erro ao deletar produto:', error);
         res.status(500).json({ message: 'Erro interno do servidor.' });
     }
 };
-

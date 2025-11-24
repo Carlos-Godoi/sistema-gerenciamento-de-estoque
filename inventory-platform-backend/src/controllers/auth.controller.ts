@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import User, { IUser } from '../models/User';
 import jwt from 'jsonwebtoken';
+import { UserRole } from '../models/User';
 
 // Assuma que JWT_SECRET está definido no .env
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_nao_seguro';
@@ -9,6 +10,40 @@ const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_nao_seguro';
 export interface AuthRequest extends Request {
     user?: IUser
 }
+
+//-------------------------------------------------------------------------------
+/**
+ * @route POST /api/auth/register (TEMPORÁRIA - APENAS PARA SETUP INICIAL)
+ * @desc Cria um usuário inicial (como Admin)
+ */
+export const registerInitialUser = async (req: Request, res: Response) => {
+  try {
+    const { username, email, password, role } = req.body;
+    
+    // O ideal seria validar a senha aqui, mas vamos simplificar
+    if (!username || !email || !password) {
+        return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+    }
+
+    // Criar o usuário (o hook 'pre' hasheará a senha automaticamente)
+    const user = await User.create({ 
+        username, 
+        email, 
+        password, 
+        role: role || UserRole.Admin // Define como Admin por padrão para o setup
+    });
+
+    res.status(201).json({ message: 'Usuário inicial criado com sucesso!', userId: user._id });
+
+  } catch (error: any) {
+    if (error.code === 11000) {
+        return res.status(400).json({ message: 'Nome de usuário ou e-mail já existe.' });
+    }
+    console.error('Erro no registro:', error);
+    res.status(500).json({ message: 'Erro interno do servidor.' });
+  }
+};
+//----------------------------------------------------------------------------------------
 
 /**
  * @route POST /api/auth/login
