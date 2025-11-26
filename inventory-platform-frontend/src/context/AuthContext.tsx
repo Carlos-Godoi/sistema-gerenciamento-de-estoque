@@ -1,9 +1,12 @@
-import React, { createContext, useState, useEffect, useContext} from 'react';
-import type { ReactNode } from 'react';
+import React, { createContext, useState, useContext, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { UserRole } from '../../../inventory-platform-backend/src/models/User';
+// Certifique-se de que o caminho está correto
+import { UserRole } from '../../../inventory-platform-backend/src/models/User'; 
 
-// Estrutura do usuário logado
+// ----------------------------------------------------
+// Interfaces
+// ----------------------------------------------------
+
 interface User {
     id: string;
     username: string;
@@ -11,7 +14,6 @@ interface User {
     role: UserRole;
 }
 
-// Estrutura do Context de Autenticação
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
@@ -19,48 +21,71 @@ interface AuthContextType {
     logout: () => void;
 }
 
+// ----------------------------------------------------
+// Setup de Contexto e Query Client
+// ----------------------------------------------------
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const queryClient = new QueryClient();
 
-// Provider Principal que envolve o App
-export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const isAuthenticated = !!user;
+// ----------------------------------------------------
+// 🎯 Lógica de Inicialização Preguiçosa
+// ----------------------------------------------------
 
-  // 1. Efeito para carregar o usuário do localStorage na montagem
-  useEffect(() => {
+// Função utilitária para buscar o estado inicial do usuário no localStorage
+const initializeUserFromStorage = (): User | null => {
     const storedToken = localStorage.getItem('token');
     const storedUser = localStorage.getItem('user');
-    
+
     if (storedToken && storedUser) {
-      try {
-        const userData = JSON.parse(storedUser) as User;
-        setUser(userData);
-        // O Axios Interceptor já cuidará de adicionar o token.
-      } catch (e) {
-        // Loga o erro para o console
-        console.error('Erro ao fazer parse do JSON do usuário:', e);
-
-        // Limpa se o JSON for inválido
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-      }
+        try {
+            // Tenta fazer o parse do JSON
+            return JSON.parse(storedUser) as User;
+        } catch (e) {
+            // Se o JSON for inválido, limpa o storage e retorna null
+            console.error('Erro ao fazer parse do JSON do usuário:', e);
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            return null;
+        }
     }
-  }, []);
+    return null;
+};
 
-    // 2. Funções de manipulação de estado
+// ----------------------------------------------------
+// Provider Principal
+// ----------------------------------------------------
+
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    
+    // 1. CORREÇÃO: Inicialização do estado com a função initializeUserFromStorage
+    // Isso garante que a leitura do localStorage aconteça APENAS UMA VEZ na inicialização.
+    const [user, setUser] = useState<User | null>(initializeUserFromStorage);
+    
+    // O isAuthenticated é um estado derivado e funciona como estava
+    const isAuthenticated = !!user;
+
+    // 2. FUNÇÃO LOGIN
     const login = (token: string, userData: User) => {
+        // O token é salvo separadamente para ser usado no Axios Interceptor
         localStorage.setItem('token', token);
+        // O objeto user é salvo para manter o estado do usuário
         localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
     };
 
+    // 3. FUNÇÃO LOGOUT
     const logout = () => {
+        // Limpa o storage e o estado
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);
-        queryClient.clear(); // Limpa o cache do React Query
+        // Limpa o cache do React Query
+        queryClient.clear(); 
     };
+
+    // O useEffect anterior (para carregar o usuário) foi removido
+    // pois a lógica foi movida para o useState.
 
     return (
         <QueryClientProvider client={queryClient}>
@@ -71,7 +96,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     );
 };
 
-// Hook customizado para usar o contexto de autenticação
+// ----------------------------------------------------
+// Hook customizado
+// ----------------------------------------------------
+
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
     const context = useContext(AuthContext);
     

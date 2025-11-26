@@ -76,7 +76,7 @@ const LoginScreen: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  
+
   // Hook customizado para acesso ao contexto de autenticação
   const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
@@ -95,7 +95,7 @@ const LoginScreen: React.FC = () => {
 
     try {
       const response = await api.post('/auth/login', { username, password });
-      
+
       const { token, user } = response.data;
 
       // Validação de tipo (TypeScript) dos dados de usuário recebidos
@@ -108,10 +108,11 @@ const LoginScreen: React.FC = () => {
 
       // 1. Chama a função de login do AuthContext, salvando o token e o usuário
       login(token, userData);
-      
+
       // 2. Redireciona para o Dashboard
       navigate('/dashboard', { replace: true });
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       // 3. Trata erros de requisição (ex: 401 Credenciais inválidas)
       const message = err.response?.data?.message || 'Erro de conexão ou credenciais inválidas.';
@@ -146,16 +147,19 @@ const LoginScreen: React.FC = () => {
             {loading ? 'Aguarde...' : 'Entrar'}
           </Button>
           {error && <ErrorMessage>{error}</ErrorMessage>}
-          
-          <p style={{ marginTop: '20px', fontSize: '14px', color: '#666' }}>
-            Usuários de Teste:
-            <ul>
-                <li>Admin / 123456</li>
-                <li>Inventory / 123456</li>
-                <li>Sales / 123456</li>
+
+          <div style={{ marginTop: '20px', fontSize: '14px', color: '#666', textAlign: 'left' }}>
+            {/* O <div> é um elemento de bloco e pode conter <ul> */}
+            <p style={{ margin: '0 0 5px 0' }}>Usuários de Teste:</p>
+            {/* A palavra "Usuários de Teste" pode ficar em um <p> ou <span> */}
+
+            <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
+              <li>Admin / 123456</li>
+              <li>Inventory / 123456</li>
+              <li>Sales / 123456</li>
             </ul>
-          </p>
-          
+          </div>
+
         </form>
       </FormWrapper>
     </LoginContainer>
