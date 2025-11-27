@@ -5,6 +5,7 @@ import AppLayout from './components/AppLayout';
 import LoginScreen from './pages/LoginScreen';
 import Dashboard from '../src/pages/Dashboard';
 import ProductList from './pages/ProductList';
+import ProductForm from './pages/ProductForm';
 
 // ... (O Componente PrivateRoute é mantido como está, pois está correto)
 interface PrivateRouteProps {
@@ -35,44 +36,28 @@ const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Rota Pública */}
-        <Route path='/login' element={<LoginScreen />} />
-
-        {/* 🎯 Rota Principal do Layout (Privada) */}
-        {/* O AppLayout tem um <Outlet /> para renderizar as rotas filhas. */}
+        <Route path="/login" element={<LoginScreen />} />
         
-        {/* Etapa 1: Proteção de Rota (Autenticação básica) */}
         <Route element={<PrivateRoute />}>
-          
-          {/* Etapa 2: Layout Principal (AppLayout) */}
-          <Route path='/' element={<AppLayout />}>
-            
-            {/* Rotas Filhas do AppLayout (renderizadas no seu <Outlet />) */}
-            
-            {/* Rota Home/Dashboard (path: '/') */}
-            <Route index element={<Dashboard />} /> 
-            
-            {/* Rotas de Gerenciamento (Admin/Inventory) - Proteção de Papel */}
-            <Route element={<PrivateRoute allowedRoles={[UserRole.Admin, UserRole.Inventory]} />}>
-              <Route path='products' element={<ProductList />} />
-              <Route path='suppliers' element={<p>Lista de Fornecedores (Em breve)</p>} />
-            </Route>
+            <Route path="/" element={<AppLayout />}>
+                <Route index element={<Dashboard />} /> 
+                <Route path="dashboard" element={<Dashboard />} />
 
-            {/* Rotas de Vendas/Relatórios (Admin e Sales) - Proteção de Papel */}
-            <Route element={<PrivateRoute allowedRoles={[UserRole.Admin, UserRole.Sales]} />}>
-              <Route path='sales' element={<p>Lista de vendas</p>} />
-              <Route path='reports' element={<p>Tela de Relatórios</p>} />
+                {/* Rotas de Gerenciamento (Admin/Inventory) */}
+                <Route element={<PrivateRoute allowedRoles={[UserRole.Admin, UserRole.Inventory]} />}>
+                    <Route path="products" element={<ProductList />} /> 
+                    <Route path="products/new" element={<ProductForm />} />     
+                    <Route path="products/edit/:id" element={<ProductForm />} /> 
+                    <Route path="suppliers" element={<p>Lista de Fornecedores (Em breve)</p>} />
+                </Route>
+                
+                {/* ... (Rotas de Vendas/Relatórios existentes) */}
             </Route>
-          
-          </Route> {/* Fim do AppLayout */}
+        </Route>
         
-        </Route> {/* Fim da PrivateRoute */}
-        
-        {/* 🎯 Rota 404 (Sempre por último e DENTRO de <Routes>) */}
-        <Route path='*' element={<h1>404 = Página não encontrada</h1>} />
+        <Route path="*" element={<h1>404 - Página não encontrada</h1>} />
       </Routes>
-
-    </BrowserRouter >
+    </BrowserRouter>
   );
 };
 

@@ -1,5 +1,8 @@
+// api.ts
+
 import axios from 'axios';
 
+// Esses tipos são do backend e não são necessários neste arquivo de configuração do Axios (frontend/cliente).
 
 // 1. Definição da URL da API (Backend)
 const api = axios.create({
@@ -9,10 +12,7 @@ const api = axios.create({
 // 2. Interceptors: Adiciona o Token JWT em todas as requisições
 api.interceptors.request.use(
     (config) => {
-        // Busca o token do localStorege
         const token = localStorage.getItem('token');
-
-        // Se o token existir, adiciona ao cabeçalho Authorization
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -27,17 +27,24 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        // Se o erro for 401 (Não Autorizado), e não for a rota de login
-        if (error.response && error.response.status === 401 && error.config.URL !== '/auth/login') {
+        const requestUrl = error.config.url;
+
+        // Condição para checar se a rota é a de login
+        const isLoginRoute = requestUrl === 'auth/login' || requestUrl === '/auth/login';
+
+        // ➡️ CORREÇÃO DA SINTAXE E DA LÓGICA:
+        // Verifica 1. Status 401 E 2. Se a rota *NÃO* é a de login.
+        if (
+            error.response &&
+            error.response.status === 401 &&
+            !isLoginRoute // Usa a variável booleana
+        ) {
             console.log('Token expirado ou inválido. Redirecionando para login.');
 
-            // Limpa o token e redireciona o usuário para a página de login
+            // Limpa o token
             localStorage.removeItem('token');
 
-            // Redirecionamento deve ser feito via Router ou Context
-            // Para o escopo do Axios, apenas forçamos um erro para o componente tratar.
-
-            // Nota: Em um projeto real, você usaria o history/navigate do router aqui.
+            // Aqui você deve colocar a lógica de redirecionamento (ex: window.location.href = '/login')
         }
         return Promise.reject(error);
     }

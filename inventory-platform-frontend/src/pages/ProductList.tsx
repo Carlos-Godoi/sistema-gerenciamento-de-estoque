@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 import { useQuery } from '@tanstack/react-query';
 import { fetchProducts } from '../services/productService';
+import { useNavigate } from 'react-router-dom';
 // import useMemo
 
 // ----------------------------------------------------
@@ -82,6 +83,7 @@ const ProductList: React.FC = () => {
     const [searchKeyword, setSearchKeyword] = useState('');
     const [keyword, setKeyword] = useState(''); // Estado para filtro que aciona a busca
     const limit = 10;
+    const navigate = useNavigate();
 
     // Debouncing simples para a busca (melhora a performance evitando requests a cada tecla)
     // useMemo reage apenas quando a `keyword` de busca muda
@@ -115,7 +117,7 @@ const ProductList: React.FC = () => {
     // Exemplo de tela que seria chamada para criar um produto
     const handleCreateNew = () => {
         console.log('Navegar para tela de criação de produto...');
-        // navigate('/products/new');
+        navigate('/products/new');
     };
 
     if (isError) {
@@ -155,7 +157,7 @@ const ProductList: React.FC = () => {
                 </thead>
                 <tbody>
                     {products.length === 0 && !isLoading ? (
-                        <tr><td colSpan={8} style={{ textAlign: 'center'}}>Nenhum produto encontrado.</td></tr>
+                        <tr><td colSpan={8} style={{ textAlign: 'center' }}>Nenhum produto encontrado.</td></tr>
                     ) : (
                         products.map((p) => (
                             <tr key={p._id}>
@@ -176,7 +178,12 @@ const ProductList: React.FC = () => {
                                     </AlertTag>
                                 </td>
                                 <td>
-                                    <Button style={{ marginRight: '5px', backgroundColor: '#f39c12' }} disabled={isFetching}>Editar</Button>
+                                    <Button style={{ marginRight: '5px', backgroundColor: '#f39c12' }}
+                                        disabled={isFetching}
+                                        onClick={() => navigate(`/products/edit/${p._id}`)}
+                                    >
+                                        Editar
+                                    </Button>
                                     <Button style={{ backgroundColor: '#c0392b' }} disabled={isFetching}>Deletar</Button>
                                 </td>
                             </tr>
@@ -189,8 +196,8 @@ const ProductList: React.FC = () => {
             {pagination && pagination.totalPages > 1 && (
                 <Pagination>
                     <Button
-                    onClick={() => handlePageChange(currentPage - 1)}
-                    disabled={currentPage === 1 || isFetching}
+                        onClick={() => handlePageChange(currentPage - 1)}
+                        disabled={currentPage === 1 || isFetching}
                     >
                         Página Anterior
                     </Button>
@@ -198,8 +205,8 @@ const ProductList: React.FC = () => {
                         Página **{currentPage}** de **{pagination.totalPages}**
                     </span>
                     <Button
-                    onClick={() => handlePageChange(currentPage + 1)}
-                    disabled={!pagination.hasNextPage || isFetching}
+                        onClick={() => handlePageChange(currentPage + 1)}
+                        disabled={!pagination.hasNextPage || isFetching}
                     >
                         Próxima Página
                     </Button>
