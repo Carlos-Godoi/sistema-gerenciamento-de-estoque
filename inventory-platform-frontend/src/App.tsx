@@ -6,6 +6,8 @@ import LoginScreen from './pages/LoginScreen';
 import Dashboard from '../src/pages/Dashboard';
 import ProductList from './pages/ProductList';
 import ProductForm from './pages/ProductForm';
+import SupplierList from './pages/SupplierList';
+import SupplierForm from './pages/SupplierForm';
 
 // ... (O Componente PrivateRoute é mantido como está, pois está correto)
 interface PrivateRouteProps {
@@ -48,7 +50,11 @@ const App: React.FC = () => {
                     <Route path="products" element={<ProductList />} /> 
                     <Route path="products/new" element={<ProductForm />} />     
                     <Route path="products/edit/:id" element={<ProductForm />} /> 
-                    <Route path="suppliers" element={<p>Lista de Fornecedores (Em breve)</p>} />
+                    
+                    {/* Fornecedores (Suppliers) - NOVO */}
+                    <Route path="suppliers" element={<SupplierList />} />         
+                    <Route path="suppliers/new" element={<SupplierForm />} />       
+                    <Route path="suppliers/edit/:id" element={<SupplierForm />} /> 
                 </Route>
                 
                 {/* ... (Rotas de Vendas/Relatórios existentes) */}
