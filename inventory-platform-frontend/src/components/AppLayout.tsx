@@ -120,6 +120,11 @@ const AppLayout: React.FC = () => {
              </>
         )}
 
+        {/* Links de Configurações (Apenas Admin) */}
+        {isAllowed([UserRole.Admin]) && (
+             <NavLink to="/users">⚙️ Gerenciar Usuários</NavLink> 
+        )}
+
         <div style={{ marginTop: 'auto', textAlign: 'center' }}>
             <LogoutButton onClick={logout}>Sair (Logout)</LogoutButton>
         </div>
