@@ -8,6 +8,7 @@ import productRoutes from './routes/product.routes';
 import saleRoutes from './routes/sale.routes';
 import reportRoutes from './routes/report.routes';
 import supplierRoutes from './routes/supplier.routes';
+import userRoutes from './routes/user.routes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -34,11 +35,12 @@ app.use('/api/products', productRoutes);
 app.use('/api/sales', saleRoutes);
 app.use('/api/report', reportRoutes);
 app.use('/api/suppliers', supplierRoutes);
+app.use('/api/users', userRoutes);
 
 // Rota de teste
-app.get('/', (req: Request, res: Response) => {
-    res.send('API de Gerenciamento de Estoque Rodando!');
-});
+// app.get('/', (req: Request, res: Response) => {
+//     res.send('API de Gerenciamento de Estoque Rodando!');
+// });
 
 // Conexão com o MongoDB
 mongoose.connect(MONGO_URI)
