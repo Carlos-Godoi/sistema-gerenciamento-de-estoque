@@ -11,6 +11,7 @@ import SupplierForm from './pages/SupplierForm';
 import UserList from './pages/UserList';
 import UserForm from './pages/UserForm';
 
+
 // ... (O Componente PrivateRoute é mantido como está, pois está correto)
 interface PrivateRouteProps {
   allowedRoles?: UserRole[];
@@ -42,6 +43,7 @@ const App: React.FC = () => {
       <Routes>
         <Route path="/login" element={<LoginScreen />} />
 
+         
         <Route element={<PrivateRoute />}>
           <Route path="/" element={<AppLayout />}>
             <Route index element={<Dashboard />} />
@@ -64,6 +66,7 @@ const App: React.FC = () => {
               <Route path="suppliers" element={<SupplierList />} />
               <Route path="suppliers/new" element={<SupplierForm />} />
               <Route path="suppliers/edit/:id" element={<SupplierForm />} />
+
             </Route>
 
             {/* ... (Rotas de Vendas/Relatórios existentes) */}

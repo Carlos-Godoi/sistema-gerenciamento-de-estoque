@@ -2,15 +2,18 @@
   "files": [],
   "references": [
     { "path": "./tsconfig.app.json" },
-    { "path": "./tsconfig.node.json" },
-    
+    { "path": "./tsconfig.node.json" }
   ],
-
   "compilerOptions": {
     // ... outras configurações
-    "baseUrl": "src",
+    
+    // REMOVIDO: "baseUrl": "src"
+    
+    // Mapeia '@shared/*' para o diretório compartilhado
+    // Mapeia o caminho raiz '@/*' para o diretório 'src'
     "paths": {
-      "@shared/*": ["../shared/src/*"] // Ajuste o caminho conforme a estrutura
+      "@shared/*": ["../shared/src/*"], 
+      
     }
   }
 }

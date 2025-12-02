@@ -3,12 +3,15 @@ import 'dotenv/config';
 import cors from 'cors';
 import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import authRoutes from './routes/auth.routes'; // Importa rotas de autenticação
 import productRoutes from './routes/product.routes';
 import saleRoutes from './routes/sale.routes';
 import reportRoutes from './routes/report.routes';
 import supplierRoutes from './routes/supplier.routes';
 import userRoutes from './routes/user.routes';
+import authRoutes from './routes/auth.routes'; 
+
+
+console.log("ROUTES:", authRoutes);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,19 +24,20 @@ const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || 'http://localhost:5173';
 const corsOptions = {
     origin: CLIENT_ORIGIN,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    Credential: true,
+    credentials: true,
     optionsSuccessStatus: 200
 };
 
 // Middleware básico para processar JSON
-app.use(express.json());
 app.use(cors(corsOptions));
+app.use(express.json());
 
 // Rotas da API
+
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/sales', saleRoutes);
-app.use('/api/report', reportRoutes);
+app.use('/api/reports', reportRoutes);
 app.use('/api/suppliers', supplierRoutes);
 app.use('/api/users', userRoutes);
 
@@ -46,6 +50,8 @@ app.use('/api/users', userRoutes);
 mongoose.connect(MONGO_URI)
 .then(() => {
     console.log('Conexão com MongoDB estabelecido com sucesso!');
+
+    
 
     // Inicia o servidor Express somente após a conexão com o DB
     app.listen(PORT, () => {

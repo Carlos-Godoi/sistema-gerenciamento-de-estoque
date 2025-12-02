@@ -19,7 +19,7 @@ export interface IUser extends Document {
 // Definição do Schema Mongoose
 const UserSchema = new Schema<IUser>({
     username: { type: String, required: true, unique: true, trim: true },
-    email: { type: String, requered: true, unique: true, lowercase: true, trim: true },
+    email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: true, select: false }, // 'select: false' omite a senha em consultas
     role: { type: String, enum: Object.values(UserRole), default: UserRole.Inventory },
 }, { timestamps: true });
@@ -44,7 +44,7 @@ UserSchema.methods.comparePassword = async function (candidatePassword: string):
 
     // Acessa o hash da senha, mesmo com 'select: false'
     const user = this as IUser;
-    return bcrypt.compare(candidatePassword, user.password);
+    return bcrypt.compare(candidatePassword, this.password);
 };
 
 export default model<IUser>('User', UserSchema);

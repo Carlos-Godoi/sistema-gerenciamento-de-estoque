@@ -152,12 +152,7 @@ const LoginScreen: React.FC = () => {
             {/* O <div> é um elemento de bloco e pode conter <ul> */}
             <p style={{ margin: '0 0 5px 0' }}>Usuários de Teste:</p>
             {/* A palavra "Usuários de Teste" pode ficar em um <p> ou <span> */}
-
-            <ul style={{ listStyleType: 'disc', paddingLeft: '20px' }}>
-              <li>Admin / 123456</li>
-              <li>Inventory / 123456</li>
-              <li>Sales / 123456</li>
-            </ul>
+          
           </div>
 
         </form>
