@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { UserRole } from '../models/User';
 
 // Assuma que JWT_SECRET está definido no .env
-const JWT_SECRET = process.env.JWT_SECRET || 'fallback_secret_nao_seguro';
+const JWT_SECRET = process.env.JWT_SECRET || 'RCbd9WxHdZkaBT1yFPzo2rCLt1Ht+8srAukQB7tSzD0=';
 
 // Interface customizada para o Request do Express, adicionando o user (opcional)
 export interface AuthRequest extends Request {

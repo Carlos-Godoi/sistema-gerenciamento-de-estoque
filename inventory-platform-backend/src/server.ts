@@ -15,7 +15,7 @@ console.log("ROUTES:", authRoutes);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/inventorydb';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/inventorydb';
 
 // ➡️ CONFIGURAÇÃO DA ORIGEM PERMITIDA
 // Define a origem do frontend (cliente). Use o valor de .env ou um fallback local.
@@ -47,7 +47,7 @@ app.use('/api/users', userRoutes);
 // });
 
 // Conexão com o MongoDB
-mongoose.connect(MONGO_URI)
+mongoose.connect(MONGODB_URI)
 .then(() => {
     console.log('Conexão com MongoDB estabelecido com sucesso!');
 
